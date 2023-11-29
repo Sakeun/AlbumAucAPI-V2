@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/Sakeun/AlbumAucAPI-V2/cmd/db"
 	"log"
 	"net/http"
 )
@@ -28,6 +29,7 @@ type Bid struct {
 
 func handleRequests() {
 	http.HandleFunc("/apiAuc/ViewAuc/getAllAuctions", returnAlbums)
+	http.HandleFunc("/getUser", getOneUser)
 	log.Fatal(http.ListenAndServe(":7044", nil))
 }
 
@@ -38,25 +40,13 @@ func returnAlbums(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
-	Albums = []Album{
-		{
-			Id:         1,
-			SellerId:   1,
-			Name:       "Antifragile",
-			Genre:      "K-pop",
-			Condition:  "As new",
-			EndingTime: "2023-11-30 22:00:00",
-			IsDone:     false,
-			Bids: []Bid{
-				{
-					Id:        1,
-					UserId:    1,
-					Amount:    30,
-					BidPlaced: "2023-11-23 21:30:00",
-				},
-			},
-		},
+func getOneUser(w http.ResponseWriter, r *http.Request) {
+	err := json.NewEncoder(w).Encode(db.GetUser())
+	if err != nil {
+		log.Fatal(err)
 	}
+}
+
+func main() {
 	handleRequests()
 }
