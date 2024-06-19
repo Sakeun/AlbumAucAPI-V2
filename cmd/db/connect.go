@@ -40,7 +40,7 @@ type Config struct {
 	} `yaml:"database"`
 }
 
-func GetUser() User {
+func GetUser(name string) User {
 	c := getCredentials()
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", c.Database.Username, c.Database.Password, c.Database.Host, c.Database.Port, c.Database.DBName)
 
@@ -51,7 +51,7 @@ func GetUser() User {
 	}
 	defer db.Close()
 
-	results, err := db.Query("SELECT * FROM user")
+	results, err := db.Query("SELECT * FROM user WHERE username = ?", name)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -63,6 +63,10 @@ func GetUser() User {
 		if err != nil {
 			panic(err.Error())
 		}
+	}
+
+	if user.Username == "" {
+		return User{}
 	}
 
 	return user

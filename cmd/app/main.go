@@ -41,10 +41,21 @@ func returnAlbums(w http.ResponseWriter, r *http.Request) {
 }
 
 func getOneUser(w http.ResponseWriter, r *http.Request) {
-	err := json.NewEncoder(w).Encode(db.GetUser())
-	if err != nil {
-		log.Fatal(err)
+	username := r.URL.Query().Get("user")
+
+	if username != "" {
+		user := db.GetUser(username)
+		if user.Username != "" {
+			err := json.NewEncoder(w).Encode(user)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			return
+		}
 	}
+
+	http.Error(w, "No user found", http.StatusNotFound)
 }
 
 func main() {
