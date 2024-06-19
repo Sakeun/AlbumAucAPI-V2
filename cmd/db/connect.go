@@ -4,9 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/go-yaml/yaml"
+	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"strconv"
 )
 
 type Album struct {
@@ -73,19 +74,22 @@ func GetUser(name string) User {
 }
 
 func getCredentials() Config {
-	filePath := "assets/config.yaml"
-	content, err := os.ReadFile(filePath)
+	err := godotenv.Load()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	var config Config
-	err = yaml.Unmarshal(content, &config)
+
+	config.Database.Host = os.Getenv("DB_HOST")
+	config.Database.Username = os.Getenv("DB_USER")
+	config.Database.Password = os.Getenv("DB_PASSWORD")
+	config.Database.DBName = os.Getenv("DB_NAME")
+	config.Database.Port, err = strconv.Atoi(os.Getenv("DB_PORT"))
+
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println(config)
 
 	return config
 }
